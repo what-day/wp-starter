@@ -1,0 +1,40 @@
+version: '3.3'
+
+services:
+  # Database: mariaDB
+  db:
+    image: mariadb:latest
+    container_name: wp-mariadb
+    volumes:
+      # Configuration
+      - "./db/my.cnf:/etc/mysql/conf.d/my.cnf"
+      # Keep DB data
+      - "./db/data:/var/lib/mysql"
+    environment:
+      TZ: Asia/Seoul
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    expose:
+      - 3306
+    ports:
+      - 3306:3306
+    restart: always
+
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    container_name: wp-app
+    ports:
+      - "8000:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - ./project:/var/www/html
